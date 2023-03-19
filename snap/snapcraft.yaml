@@ -1,0 +1,47 @@
+name: atuin
+adopt-info: atuin
+summary: magical shell history
+description: |
+  Atuin replaces your existing shell history with a SQLite database, 
+  and records additional context for your commands.
+  
+license: MIT
+
+base: core20
+grade: stable
+confinement: strict
+compression: lzo
+
+assumes: 
+  - command-chain
+
+plugs:
+  dot-bash_history:
+    interface: personal-files
+    read:
+    - $HOME/.bash_history
+  
+apps:
+  atuin:
+    command: bin/atuin
+    command-chain: 
+      - bin/homeishome-launch        
+    plugs:
+      - network
+      - home
+      - personal-files
+      - dot-bash_history
+
+parts:
+  atuin:
+    source: https://github.com/ellie/atuin
+    source-type: git
+    plugin: rust
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags | sed 's/^v//')"    
+      
+  homeishome-launch:
+    plugin: nil
+    stage-snaps:
+      - homeishome-launch       
